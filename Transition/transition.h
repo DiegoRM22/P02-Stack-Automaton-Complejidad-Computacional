@@ -31,12 +31,6 @@ class Transition {
   std::vector<Symbol> addToStack_;
 };
 
-std::ostream& operator<<(std::ostream& os, const Transition& transition) {
-  os << transition.GetFromState() << " -> " << transition.GetToState() << " : " << transition.GetStringSymbol() << ", " << transition.GetStackSymbol() << ", ";
-  for (Symbol symbol : transition.GetAddToStack()) {
-    os << symbol;
-  }
-  return os;
-}
+std::ostream& operator<<(std::ostream& os, const Transition& transition);
 
 #endif
