@@ -2,6 +2,7 @@
 
 #include "../Alphabet/alphabet.h"
 #include "../State/state.h"
+#include "../MyStack/my_stack.h"
 
 
 #ifndef STACK_AUTOMATON_H
@@ -16,6 +17,7 @@ class StackAutomaton {
   Alphabet stackAlphabet_;
   State initialState_;
   std::set<State> acceptingStates_;
+  MyStack stack_;
 };
 
 #endif
