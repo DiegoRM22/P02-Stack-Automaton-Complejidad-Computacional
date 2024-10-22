@@ -3,9 +3,9 @@
 
 std::ostream& operator<<(std::ostream& os, const State& state) {
   os << state.getIdentifier();
-  os << "Transiciones: ";
+  os << " Transiciones: ";
   for (Transition transition : state.getTransitions()) {
-    os << transition;
+    os << transition << '\n';
   }
   return os;
 }

@@ -28,6 +28,7 @@ class State {
   }
 
   void AddTransition(Transition transition) {
+    std::cout << "Adding transition: " << transition << std::endl;
     transitions_.push_back(transition);
   }
   
