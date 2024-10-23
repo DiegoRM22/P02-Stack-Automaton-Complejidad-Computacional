@@ -13,26 +13,26 @@
 
 class StackAutomaton {
  public:
-  StackAutomaton(std::string fileName);
-  bool Accepts(std::string input);
-  bool AcceptsRecursive(State* currentState, std::string remainingInput, MyStack stack);
-  std::vector<Transition> GetTransitions(State* state, Symbol stringSymbol, Symbol stackSymbol);
-  void Transites(State state, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol,
-                 State* toState, std::vector<Symbol> addToStack);
-  Iteration* FindFirstValidIteration();
-  void InitializeStates();
-  ~StackAutomaton();  // Agrega un destructor para liberar la memoria
+  StackAutomaton(std::string fileName);  // Constructor que inicializa el autómata con el archivo de configuración
+  bool Accepts(std::string input);  // Método principal para verificar si la cadena es aceptada
+  bool AcceptsRecursive(State currentState, std::string remainingInput, MyStack stack);  // Método recursivo para evaluar la cadena
+  std::vector<Transition> GetTransitions(State state, Symbol stringSymbol, Symbol stackSymbol);  // Obtener las transiciones válidas desde el estado actual
+  void Transites(State& state, State toState, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol, std::vector<Symbol> addToStack, MyStack& stack);  // Ejecuta la transición
+  Iteration* FindFirstValidIteration();  // Encuentra la primera iteración válida para retroceder en el autómata
+  void InitializeStates();  // Inicializa los estados copiando el conjunto original
+  ~StackAutomaton();  // Destructor para liberar memoria
+
  private:
-  std::set<State*> states_;  // Cambiado a punteros a State
-  std::set<State> statesCopy_;
-  Alphabet alphabet_;
-  Alphabet stackAlphabet_;
-  State* initialState_;  // Cambiado a puntero
-  std::set<State*> acceptingStates_;  // Cambiado a punteros
-  MyStack stack_;
-  std::stack<Iteration> iterations_;
-  int iterationCounter_;
-  bool reset = false;
+  std::set<State*> states_;  // Conjunto de punteros a estados
+  std::set<State> statesCopy_;  // Copia de los estados para manipulación
+  Alphabet alphabet_;  // Alfabeto del autómata
+  Alphabet stackAlphabet_;  // Alfabeto de la pila
+  State* initialState_;  // Puntero al estado inicial
+  std::set<State*> acceptingStates_;  // Conjunto de punteros a los estados de aceptación
+  MyStack stack_;  // Pila del autómata
+  std::stack<Iteration> iterations_;  // Pila de iteraciones para retroceder en caso de fallo
+  int iterationCounter_;  // Contador de iteraciones para seguimiento
+  bool reset = false;  // Bandera para reiniciar la evaluación de transiciones
 };
 
 #endif
