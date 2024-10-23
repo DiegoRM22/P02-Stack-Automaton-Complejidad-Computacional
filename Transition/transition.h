@@ -23,6 +23,10 @@ class Transition {
   void SetStackSymbol(Symbol stackSymbol) { stackSymbol_ = stackSymbol; }
   void SetAddToStack(std::vector<Symbol> addToStack) { addToStack_ = addToStack; }
 
+  bool operator==(const Transition& other) const {
+    return fromState_ == other.GetFromState() && toState_ == other.GetToState() && stringSymbol_ == other.GetStringSymbol() && stackSymbol_ == other.GetStackSymbol();
+  }
+
  private:
   std::string fromState_;
   std::string toState_;

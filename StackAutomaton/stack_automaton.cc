@@ -1,5 +1,6 @@
 #include <fstream>
 #include <regex>
+
 #include "stack_automaton.h"
 
 StackAutomaton::StackAutomaton(std::string fileName) {
@@ -117,45 +118,218 @@ StackAutomaton::StackAutomaton(std::string fileName) {
       break;
     }
   }
+  InitializeStates();
+}
+
+// bool StackAutomaton::Accepts(std::string input) {
+//   State* currentState = initialState_;  // Usar puntero al estado actual
+//   std::cout << "State \t" << "Cadena \t" << "Pila" << std::endl;
+//   std::string remainingInput = input;
+//   int counter = 1;
+//   std::cout << "I\t Est\t Cad\t Pila\t Transiciones" << std::endl;
+
+//   while (!stack_.IsEmpty()) {
+//     std::cin.get();
+
+//     std::cout << counter << "\t" << currentState->getIdentifier() << "\t" << remainingInput << "\t" << stack_ << "\t";
+
+//     Symbol currentSymbol = Symbol(remainingInput[0]);
+//     std::vector<Transition> transitions;
+//     Symbol epsilon = Symbol('.');
+//     for (Transition transition : currentState->getTransitions()) {
+//       if (((transition.GetStringSymbol() == currentSymbol) || (transition.GetStringSymbol() == epsilon)) && 
+//          (((transition.GetStackSymbol() == stack_.Top()) || (transition.GetStackSymbol() == epsilon)))) {
+//         transitions.push_back(transition);
+//       }
+//     }
+//     // Print the transitions validated
+//     for (Transition transition : transitions) {
+//       std::cout << transition << ", ";
+//     }
+//     std::cout << std::endl;
+    
+//     // Elegimos la primera transición válida
+    
+//     std::cout << "TAMAÑO TRANSICIONES: " << transitions.size() << std::endl;
+//     if (transitions.size() == 0) {
+//       Iteration* firstValidIteration = FindFirstValidIteration();
+//       std::cout << "Funciono" << std::endl;
+//       // currentTransition = firstValidIteration.getRemainingTransitions()[0];
+//       transitions = firstValidIteration->getRemainingTransitions();
+//       State* toState = nullptr;
+//       Transition currentTransition = transitions[0];
+//       for (State* state : states_) {
+//         if (*state == State(currentTransition.GetToState())) {
+//           toState = state;
+//           break;
+//         }
+//       }
+//       std::cout << "Funciono" << std::endl;
+
+//       currentState = toState;
+//       remainingInput = firstValidIteration->getRemainingInput();
+      
+//       stack_ = firstValidIteration->getStack();
+//       std::cout << "Nueva iteración: " << std::endl;
+//       firstValidIteration->Print();
+//       Transites(currentState, remainingInput, currentSymbol, stack_.Top(),
+//                 firstValidIteration->getCurrentState(), firstValidIteration->getRemainingTransitions()[0].GetAddToStack());
+//       // Eliminar la transición usada
+//       transitions.erase(transitions.begin());
+//       // firstValidIteration->RemoveTransition(currentTransition);
+//       ++counter;
+//       continue;
+      
+//     }
+//     Transition currentTransition = transitions[0];
+//     State* toState = nullptr;
+
+//     for (State* state : states_) {
+//       if (*state == State(currentTransition.GetToState())) {
+//         toState = state;
+//         break;
+//       }
+//     }
+//     transitions.erase(transitions.begin());
+//     Iteration iteration(counter, currentState, remainingInput, stack_, transitions);
+//     currentState = toState;
+//     Transites(currentState, remainingInput, currentTransition.GetStringSymbol(), stack_.Top(),
+//               toState, currentTransition.GetAddToStack());
+//     // Eliminar la transición usada
+//     iterations_.push(iteration);
+//     ++counter;
+
+
+//   }
+//   return false;
+// }
+
+void StackAutomaton::InitializeStates() {
+  for (State* state : states_) {
+    statesCopy_.insert(*state);
+  }
 }
 
 bool StackAutomaton::Accepts(std::string input) {
-  State* currentState = initialState_;  // Usar puntero al estado actual
-  std::cout << "State \t" << "Cadena \t" << "Pila" << std::endl;
-  std::string remainingInput = input;
-  for (char symbol : input) {
-    if (stack_.IsEmpty()) {
-      return false;
+  iterationCounter_ = 0;
+  std::cout << "I\t Est\t Cad\t Pila\t Transiciones" << std::endl;
+  if (AcceptsRecursive(initialState_, input, stack_)) {
+    return true;
+  }
+  return false;
+}
+
+bool StackAutomaton::AcceptsRecursive(State* currentState, std::string remainingInput, MyStack stack) {
+  ++iterationCounter_;
+  MyStack stackCopy = stack;
+  std::string remainingInputCopy = remainingInput;
+  State* currentStateCopy = new State(*currentState);
+  std::cin.get();
+  std::cout << iterationCounter_ << "\t" << currentState->getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
+  Symbol currentSymbol = Symbol(remainingInput[0]);
+  std::vector<Transition> transitions = GetTransitions(currentState, currentSymbol, stack.Top());
+  for (Transition transition : transitions) {
+    std::cout << transition << ", ";
+  }
+  std::cout << std::endl;
+  std::cout << "Numero de transiciones: " << transitions.size() << std::endl;
+  int counter = 0;
+  if (transitions.size() == 0) {
+    std::cout << "No hay transiciones" << std::endl;
+    return false;
+  }
+  for (Transition transition : transitions) {
+    if (reset) {
+      std::cout << "Reset, poniendo " << currentState->getIdentifier() << " a " << currentStateCopy->getIdentifier() << std::endl;
+      currentState = currentStateCopy;
+      stack = stackCopy;
+      remainingInput = remainingInputCopy;
+      reset = false;
     }
-    Symbol inputSymbol(symbol);
-    bool transitionFound = false;
-    std::cout << currentState->getIdentifier() << "\t" << remainingInput << "\t" << stack_ << std::endl;
-    for (Transition transition : currentState->getTransitions()) {
-      if (transition.GetStringSymbol() == inputSymbol && transition.GetStackSymbol() == stack_.Top()) {
-        std::cout << "Transition selected: " << transition << std::endl;
-        // current state pasa a ser el estado encontrandolo en el set de estados
-        for (State* state : states_) {
-          if (*state == State(transition.GetToState())) {
-            currentState = state;
-            break;
-          }
-        }
-        stack_.Pop();
-        for (int i = transition.GetAddToStack().size() - 1; i >= 0; --i) {
-          if (transition.GetAddToStack()[i].GetSymbol() != '.') { // No agregar el símbolo vacío
-            stack_.Push(transition.GetAddToStack()[i].GetSymbol());
-          }
-        }
-        transitionFound = true;
+    std::cout << "Esta es la transición numero: " << counter << std::endl;
+    State* toState = nullptr;
+    for (State* state : states_) {
+      if (*state == State(transition.GetToState())) {
+        toState = state;
+        std::cout << "ENCONTRADO " << state->getIdentifier() << std::endl;
         break;
       }
     }
-    if (!transitionFound) {
-      return false;
+    
+    // Transitar aqui
+    stack.Pop();
+    // Add to stack
+    if (transition.GetAddToStack().size() > 0) {
+      for (int i = transition.GetAddToStack().size() - 1; i >= 0; --i) {
+        stack.Push(transition.GetAddToStack()[i]);
+      }
     }
-    remainingInput = remainingInput.substr(1);
+    if (transition.GetStringSymbol().GetSymbol() != '.') {
+      remainingInput.erase(0, 1);
+    }
+
+    
+    if (remainingInput.size() == 0 && stack.IsEmpty()) {
+      return true;
+    }
+    if (AcceptsRecursive(toState, remainingInput, stack)) {
+      return true;
+    } else {
+      stack = stackCopy;
+      remainingInput = remainingInputCopy;
+      reset = true;
+    }
+    ++counter;
   }
-  return stack_.IsEmpty() && remainingInput.empty();
+  return false;
+}
+
+std::vector<Transition> StackAutomaton::GetTransitions(State* state, Symbol stringSymbol, Symbol stackSymbol) {
+  std::vector<Transition> transitions;
+  Symbol epsilon = Symbol('.');
+  for (Transition transition : state->getTransitions()) {
+    if (((transition.GetStringSymbol() == stringSymbol) || (transition.GetStringSymbol() == epsilon)) && 
+        (((transition.GetStackSymbol() == stackSymbol) || (transition.GetStackSymbol() == epsilon))) ) {
+      transitions.push_back(transition);
+    }
+  }
+  return transitions;
+}
+
+
+  
+
+
+
+
+
+
+void StackAutomaton::Transites(State state, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol,
+                               State* toState, std::vector<Symbol> addToStack) {
+  if (stringSymbol.GetSymbol() != '.' && stringSymbol.GetSymbol() == remainingInput[0]) {
+    std::cout << "Eliminando " << stringSymbol.GetSymbol() << " de " << remainingInput << std::endl;
+    remainingInput.erase(0, 1);
+  }
+  if (stackSymbol.GetSymbol() != '.') {
+    stack_.Pop();
+  }
+  if (addToStack[0].GetSymbol() != '.') {
+    for (int i = addToStack.size() - 1; i >= 0; --i) {
+      stack_.Push(addToStack[i]);
+    }
+  }
+  state = *toState; 
+}
+
+Iteration* StackAutomaton::FindFirstValidIteration() {
+  std::stack<Iteration> copy = iterations_;
+  while (!copy.empty()) {
+    Iteration iteration = copy.top();
+    copy.pop();
+    if (iteration.getRemainingTransitions().size() > 0) {
+      return &iteration;
+    }
+  }
 }
 
 // Destructor para liberar memoria de los estados

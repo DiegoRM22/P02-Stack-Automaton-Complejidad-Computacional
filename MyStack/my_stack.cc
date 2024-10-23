@@ -6,7 +6,6 @@ void MyStack::Print() const {
     std::cout << stack.top();
     stack.pop();
   }
-  std::cout << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, const MyStack& stack) {
