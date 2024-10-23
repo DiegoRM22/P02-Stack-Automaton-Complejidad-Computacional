@@ -12,6 +12,10 @@ class Symbol {
   bool operator<(const Symbol& other) const {
     return symbol < other.GetSymbol();
   }
+
+  bool operator==(const Symbol& other) const {
+    return symbol == other.GetSymbol();
+  }
  private:
   char symbol;
 };

@@ -11,7 +11,6 @@ StackAutomaton::StackAutomaton(std::string fileName) {
 
   while (std::getline(file, line)) {
     if (std::regex_match(line, commentLineRegexp)) {
-      std::cout << "Comment line. Skipping..." << std::endl;
       continue;
     }
     ++counter;
@@ -112,29 +111,51 @@ StackAutomaton::StackAutomaton(std::string fileName) {
       }
     }
   }
-
-  // Check parser results
-  std::cout << "Estados: ";
   for (State* state : states_) {
-    std::cout << state->getIdentifier() << " ";
+    if (*state == *initialState_) {
+      initialState_ = state;
+      break;
+    }
   }
-  std::cout << std::endl;
+}
 
-  std::cout << "Alfabeto: ";
-  for (Symbol symbol : alphabet_.GetSymbols()) {
-    std::cout << symbol.GetSymbol() << " ";
+bool StackAutomaton::Accepts(std::string input) {
+  State* currentState = initialState_;  // Usar puntero al estado actual
+  std::cout << "State \t" << "Cadena \t" << "Pila" << std::endl;
+  std::string remainingInput = input;
+  for (char symbol : input) {
+    if (stack_.IsEmpty()) {
+      return false;
+    }
+    Symbol inputSymbol(symbol);
+    bool transitionFound = false;
+    std::cout << currentState->getIdentifier() << "\t" << remainingInput << "\t" << stack_ << std::endl;
+    for (Transition transition : currentState->getTransitions()) {
+      if (transition.GetStringSymbol() == inputSymbol && transition.GetStackSymbol() == stack_.Top()) {
+        std::cout << "Transition selected: " << transition << std::endl;
+        // current state pasa a ser el estado encontrandolo en el set de estados
+        for (State* state : states_) {
+          if (*state == State(transition.GetToState())) {
+            currentState = state;
+            break;
+          }
+        }
+        stack_.Pop();
+        for (int i = transition.GetAddToStack().size() - 1; i >= 0; --i) {
+          if (transition.GetAddToStack()[i].GetSymbol() != '.') { // No agregar el símbolo vacío
+            stack_.Push(transition.GetAddToStack()[i].GetSymbol());
+          }
+        }
+        transitionFound = true;
+        break;
+      }
+    }
+    if (!transitionFound) {
+      return false;
+    }
+    remainingInput = remainingInput.substr(1);
   }
-  std::cout << std::endl;
-
-  std::cout << "Alfabeto de la pila: ";
-  for (Symbol symbol : stackAlphabet_.GetSymbols()) {
-    std::cout << symbol.GetSymbol() << " ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "Estado inicial: " << initialState_->getIdentifier() << std::endl;
-
-  std::cout << "Elemento de la pila inicial: " << stack_.Top() << std::endl;
+  return stack_.IsEmpty() && remainingInput.empty();
 }
 
 // Destructor para liberar memoria de los estados

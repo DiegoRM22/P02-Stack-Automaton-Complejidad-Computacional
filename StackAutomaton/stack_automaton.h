@@ -11,6 +11,7 @@
 class StackAutomaton {
  public:
   StackAutomaton(std::string fileName);
+  bool Accepts(std::string input);
   ~StackAutomaton();  // Agrega un destructor para liberar la memoria
  private:
   std::set<State*> states_;  // Cambiado a punteros a State
