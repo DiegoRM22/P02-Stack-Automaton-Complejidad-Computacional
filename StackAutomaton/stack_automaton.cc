@@ -212,20 +212,31 @@ void StackAutomaton::InitializeStates() {
 
 bool StackAutomaton::Accepts(std::string input) {
   iterationCounter_ = 0;
+  // Print statesCopy to check
+  for (State state : statesCopy_) {
+    std::cout << state << std::endl;
+  }
+  State currentState;
+  for (State state : statesCopy_) {
+    if (state == *initialState_) {
+      currentState = state;
+      break;
+    }
+  }
   std::cout << "I\t Est\t Cad\t Pila\t Transiciones" << std::endl;
-  if (AcceptsRecursive(initialState_, input, stack_)) {
+  if (AcceptsRecursive(currentState, input, stack_)) {
     return true;
   }
   return false;
 }
 
-bool StackAutomaton::AcceptsRecursive(State* currentState, std::string remainingInput, MyStack stack) {
+bool StackAutomaton::AcceptsRecursive(State currentState, std::string remainingInput, MyStack stack) {
   ++iterationCounter_;
   MyStack stackCopy = stack;
   std::string remainingInputCopy = remainingInput;
-  State* currentStateCopy = new State(*currentState);
+  State currentStateCopy = currentState;
   std::cin.get();
-  std::cout << iterationCounter_ << "\t" << currentState->getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
+  std::cout << iterationCounter_ << "\t" << currentState.getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
   Symbol currentSymbol = Symbol(remainingInput[0]);
   std::vector<Transition> transitions = GetTransitions(currentState, currentSymbol, stack.Top());
   for (Transition transition : transitions) {
@@ -240,18 +251,17 @@ bool StackAutomaton::AcceptsRecursive(State* currentState, std::string remaining
   }
   for (Transition transition : transitions) {
     if (reset) {
-      std::cout << "Reset, poniendo " << currentState->getIdentifier() << " a " << currentStateCopy->getIdentifier() << std::endl;
+      std::cout << "Reset, poniendo " << currentState.getIdentifier() << " a " << currentStateCopy.getIdentifier() << std::endl;
       currentState = currentStateCopy;
       stack = stackCopy;
       remainingInput = remainingInputCopy;
       reset = false;
     }
     std::cout << "Esta es la transición numero: " << counter << std::endl;
-    State* toState = nullptr;
-    for (State* state : states_) {
-      if (*state == State(transition.GetToState())) {
+    State toState;
+    for (State state : statesCopy_) {
+      if (state == State(transition.GetToState())) {
         toState = state;
-        std::cout << "ENCONTRADO " << state->getIdentifier() << std::endl;
         break;
       }
     }
@@ -284,10 +294,10 @@ bool StackAutomaton::AcceptsRecursive(State* currentState, std::string remaining
   return false;
 }
 
-std::vector<Transition> StackAutomaton::GetTransitions(State* state, Symbol stringSymbol, Symbol stackSymbol) {
+std::vector<Transition> StackAutomaton::GetTransitions(State state, Symbol stringSymbol, Symbol stackSymbol) {
   std::vector<Transition> transitions;
   Symbol epsilon = Symbol('.');
-  for (Transition transition : state->getTransitions()) {
+  for (Transition transition : state.getTransitions()) {
     if (((transition.GetStringSymbol() == stringSymbol) || (transition.GetStringSymbol() == epsilon)) && 
         (((transition.GetStackSymbol() == stackSymbol) || (transition.GetStackSymbol() == epsilon))) ) {
       transitions.push_back(transition);

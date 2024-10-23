@@ -15,8 +15,8 @@ class StackAutomaton {
  public:
   StackAutomaton(std::string fileName);
   bool Accepts(std::string input);
-  bool AcceptsRecursive(State* currentState, std::string remainingInput, MyStack stack);
-  std::vector<Transition> GetTransitions(State* state, Symbol stringSymbol, Symbol stackSymbol);
+  bool AcceptsRecursive(State currentState, std::string remainingInput, MyStack stack);
+  std::vector<Transition> GetTransitions(State state, Symbol stringSymbol, Symbol stackSymbol);
   void Transites(State state, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol,
                  State* toState, std::vector<Symbol> addToStack);
   Iteration* FindFirstValidIteration();
