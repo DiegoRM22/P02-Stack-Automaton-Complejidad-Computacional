@@ -1,3 +1,14 @@
+/**
+  * Universidad de La Laguna
+  * Escuela Superior de Ingeniería y Tecnología
+  * Grado en Ingeniería Informática
+  * Complejidad Computacional P02
+  *
+  * @author Diego Rodríguez Martín
+  * @since 24-10-2024
+  * @brief Implementación de la clase MyStack.
+  *
+*/
 
 #include <iostream>
 #include <stack>

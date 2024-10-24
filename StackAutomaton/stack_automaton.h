@@ -1,3 +1,15 @@
+/**
+  * Universidad de La Laguna
+  * Escuela Superior de Ingeniería y Tecnología
+  * Grado en Ingeniería Informática
+  * Complejidad Computacional P02
+  *
+  * @author Diego Rodríguez Martín
+  * @since 24-10-2024
+  * @brief Implementación de la clase StackAutomaton.
+  *
+*/
+
 #include <iostream>
 #include <set>
 #include <string>
@@ -6,7 +18,6 @@
 #include "../Alphabet/alphabet.h"
 #include "../State/state.h"
 #include "../MyStack/my_stack.h"
-#include "../Iteration/iteration.h"
 
 #ifndef STACK_AUTOMATON_H
 #define STACK_AUTOMATON_H
@@ -18,8 +29,8 @@ class StackAutomaton {
   bool AcceptsRecursive(State currentState, std::string remainingInput, MyStack stack);  // Método recursivo para evaluar la cadena
   std::vector<Transition> GetTransitions(State state, Symbol stringSymbol, Symbol stackSymbol);  // Obtener las transiciones válidas desde el estado actual
   void Transites(State& state, State toState, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol, std::vector<Symbol> addToStack, MyStack& stack);  // Ejecuta la transición
-  Iteration* FindFirstValidIteration();  // Encuentra la primera iteración válida para retroceder en el autómata
   void InitializeStates();  // Inicializa los estados copiando el conjunto original
+  void SetTraceMode(bool traceModeOn) { traceModeOn_ = traceModeOn; }  // Activa o desactiva el modo de seguimiento
   ~StackAutomaton();  // Destructor para liberar memoria
 
  private:
@@ -30,9 +41,8 @@ class StackAutomaton {
   State* initialState_;  // Puntero al estado inicial
   std::set<State*> acceptingStates_;  // Conjunto de punteros a los estados de aceptación
   MyStack stack_;  // Pila del autómata
-  std::stack<Iteration> iterations_;  // Pila de iteraciones para retroceder en caso de fallo
   int iterationCounter_;  // Contador de iteraciones para seguimiento
-  bool reset = false;  // Bandera para reiniciar la evaluación de transiciones
+  bool traceModeOn_ = false;  // Modo de seguimiento  
 };
 
 #endif

@@ -1,8 +1,24 @@
+/**
+  * Universidad de La Laguna
+  * Escuela Superior de Ingeniería y Tecnología
+  * Grado en Ingeniería Informática
+  * Complejidad Computacional P02
+  *
+  * @author Diego Rodríguez Martín
+  * @since 24-10-2024
+  * @brief Implementación de la clase StackAutomaton.
+  *
+*/
+
 #include <fstream>
 #include <regex>
 
 #include "stack_automaton.h"
 
+/**
+ * Constructor que inicializa el autómata con el archivo de configuración.
+ * @param fileName Nombre del archivo de configuración.
+ */
 StackAutomaton::StackAutomaton(std::string fileName) {
   std::ifstream file(fileName);
   std::string line;
@@ -85,14 +101,7 @@ StackAutomaton::StackAutomaton(std::string fileName) {
           line.erase(0, pos + delimiter.length());
 
           std::vector<Symbol> addToStack;
-          // while (line.size() > 0 && line.find(delimiter) != std::string::npos) {
-          //   std::cout << "Line: " << line << std::endl;
-          //   pos = line.find(delimiter);
-          //   char symbolName = line.substr(0, pos)[0];
-          //   Symbol symbol(symbolName);
-          //   addToStack.push_back(symbol);
-          //   line.erase(0, pos + delimiter.length());
-          // }
+
           for (char symbolName : line) {
             Symbol symbol(symbolName);
             addToStack.push_back(symbol);
@@ -121,101 +130,23 @@ StackAutomaton::StackAutomaton(std::string fileName) {
   InitializeStates();
 }
 
-// bool StackAutomaton::Accepts(std::string input) {
-//   State* currentState = initialState_;  // Usar puntero al estado actual
-//   std::cout << "State \t" << "Cadena \t" << "Pila" << std::endl;
-//   std::string remainingInput = input;
-//   int counter = 1;
-//   std::cout << "I\t Est\t Cad\t Pila\t Transiciones" << std::endl;
-
-//   while (!stack_.IsEmpty()) {
-//     std::cin.get();
-
-//     std::cout << counter << "\t" << currentState->getIdentifier() << "\t" << remainingInput << "\t" << stack_ << "\t";
-
-//     Symbol currentSymbol = Symbol(remainingInput[0]);
-//     std::vector<Transition> transitions;
-//     Symbol epsilon = Symbol('.');
-//     for (Transition transition : currentState->getTransitions()) {
-//       if (((transition.GetStringSymbol() == currentSymbol) || (transition.GetStringSymbol() == epsilon)) && 
-//          (((transition.GetStackSymbol() == stack_.Top()) || (transition.GetStackSymbol() == epsilon)))) {
-//         transitions.push_back(transition);
-//       }
-//     }
-//     // Print the transitions validated
-//     for (Transition transition : transitions) {
-//       std::cout << transition << ", ";
-//     }
-//     std::cout << std::endl;
-    
-//     // Elegimos la primera transición válida
-    
-//     std::cout << "TAMAÑO TRANSICIONES: " << transitions.size() << std::endl;
-//     if (transitions.size() == 0) {
-//       Iteration* firstValidIteration = FindFirstValidIteration();
-//       std::cout << "Funciono" << std::endl;
-//       // currentTransition = firstValidIteration.getRemainingTransitions()[0];
-//       transitions = firstValidIteration->getRemainingTransitions();
-//       State* toState = nullptr;
-//       Transition currentTransition = transitions[0];
-//       for (State* state : states_) {
-//         if (*state == State(currentTransition.GetToState())) {
-//           toState = state;
-//           break;
-//         }
-//       }
-//       std::cout << "Funciono" << std::endl;
-
-//       currentState = toState;
-//       remainingInput = firstValidIteration->getRemainingInput();
-      
-//       stack_ = firstValidIteration->getStack();
-//       std::cout << "Nueva iteración: " << std::endl;
-//       firstValidIteration->Print();
-//       Transites(currentState, remainingInput, currentSymbol, stack_.Top(),
-//                 firstValidIteration->getCurrentState(), firstValidIteration->getRemainingTransitions()[0].GetAddToStack());
-//       // Eliminar la transición usada
-//       transitions.erase(transitions.begin());
-//       // firstValidIteration->RemoveTransition(currentTransition);
-//       ++counter;
-//       continue;
-      
-//     }
-//     Transition currentTransition = transitions[0];
-//     State* toState = nullptr;
-
-//     for (State* state : states_) {
-//       if (*state == State(currentTransition.GetToState())) {
-//         toState = state;
-//         break;
-//       }
-//     }
-//     transitions.erase(transitions.begin());
-//     Iteration iteration(counter, currentState, remainingInput, stack_, transitions);
-//     currentState = toState;
-//     Transites(currentState, remainingInput, currentTransition.GetStringSymbol(), stack_.Top(),
-//               toState, currentTransition.GetAddToStack());
-//     // Eliminar la transición usada
-//     iterations_.push(iteration);
-//     ++counter;
-
-
-//   }
-//   return false;
-// }
-
+/**
+ * Inicializa los estados copiando el conjunto original.
+ */
 void StackAutomaton::InitializeStates() {
   for (State* state : states_) {
     statesCopy_.insert(*state);
   }
 }
 
+/**
+ * Método principal para verificar si la cadena es aceptada.
+ * @param input Cadena a evaluar.
+ * @return true si la cadena es aceptada, false en caso contrario.
+ */
 bool StackAutomaton::Accepts(std::string input) {
   iterationCounter_ = 0;
   // Print statesCopy to check
-  for (State state : statesCopy_) {
-    std::cout << state << std::endl;
-  }
   State currentState;
   for (State state : statesCopy_) {
     if (state == *initialState_) {
@@ -223,13 +154,20 @@ bool StackAutomaton::Accepts(std::string input) {
       break;
     }
   }
-  std::cout << "I\t Est\t Cad\t Pila\t Transiciones" << std::endl;
+  if (traceModeOn_)  std::cout << "I\t Est\t Cad\t Pila\t Transiciones" << std::endl;
   if (AcceptsRecursive(currentState, input, stack_)) {
     return true;
   }
   return false;
 }
 
+/**
+ * Método recursivo para evaluar la cadena.
+ * @param currentState Estado actual.
+ * @param remainingInput Cadena restante.
+ * @param stack Pila actual.
+ * @return true si la cadena es aceptada, false en caso contrario.
+ */
 bool StackAutomaton::AcceptsRecursive(State currentState, std::string remainingInput, MyStack stack) {
   // Caso base: si la pila está vacía y no queda más entrada, la cadena es aceptada.
   if (stack.IsEmpty() && remainingInput.size() == 0) {
@@ -242,42 +180,31 @@ bool StackAutomaton::AcceptsRecursive(State currentState, std::string remainingI
   std::string remainingInputCopy = remainingInput;
   MyStack stackCopy = stack;
   State currentStateCopy = currentState;
-  
   ++iterationCounter_;
   //std::cin.get();  // Pausa para seguimiento
-
   // Si la cadena no está vacía, tomamos el símbolo actual; si está vacía, usamos epsilon ('.')
   Symbol currentSymbol = remainingInput.empty() ? Symbol('.') : Symbol(remainingInput[0]);
-
   // Obtenemos las transiciones válidas desde el estado actual
   std::vector<Transition> transitions = GetTransitions(currentState, currentSymbol, stack.Top());
-
-  
-
   // Si no hay transiciones válidas, la recursión termina sin éxito
   if (transitions.size() == 0) {
-    std::cout << iterationCounter_ << "\t" << currentState.getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
-
-    std::cout << "No hay transiciones" << std::endl;
+    if (traceModeOn_) {
+      std::cout << iterationCounter_ << "\t" << currentState.getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
+      std::cout << "No hay transiciones" << std::endl;
+    }
     return false;
   }
   int counter = 1;
   // Probar todas las transiciones válidas
   for (Transition transition : transitions) {
-    // std::cout << "Probando transición: " << counter << std::endl;
-    // std::cout << "input: " << remainingInput << std::endl;
-    // std::cout << "stack: " << stack << std::endl;
-    // std::cout << "State: " << currentState.getIdentifier() << std::endl;
-
-    std::cout << iterationCounter_ << "\t" << currentState.getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
-
-    // Traza las transiciones posibles
-    for (Transition transition : transitions) {
-      std::cout << transition << ", ";
+    if (traceModeOn_) {
+      std::cout << iterationCounter_ << "\t" << currentState.getIdentifier() << "\t" << remainingInput << "\t" << stack << "\t";
+      // Traza las transiciones posibles
+      for (Transition transition : transitions) {
+        std::cout << transition << ", ";
+      }
+      std::cout << "\tTransicion elegida: " << transition << std::endl;
     }
-    std::cout << std::endl;
-    std::cout << "Transicion elegida: " << transition << std::endl;
-
     // Buscar el estado de destino
     State toState;
     for (State state : statesCopy_) {
@@ -286,12 +213,10 @@ bool StackAutomaton::AcceptsRecursive(State currentState, std::string remainingI
         break;
       }
     }
-
     // Preparar la nueva pila y la cadena después de aplicar la transición
     std::string newRemainingInput = remainingInput;
     MyStack newStack = stack;
     Transites(currentState, toState, newRemainingInput, transition.GetStringSymbol(), stack.Top(), transition.GetAddToStack(), newStack);
-
     // Llamada recursiva
     if (AcceptsRecursive(toState, newRemainingInput, newStack)) {
       return true;  // Si alguna rama acepta, terminamos la búsqueda
@@ -299,13 +224,17 @@ bool StackAutomaton::AcceptsRecursive(State currentState, std::string remainingI
     ++counter;
     // Si no, se continúa probando las siguientes transiciones
   }
-
   // Si ninguna transición lleva a la aceptación, devolvemos false
   return false;
 }
 
-
-
+/**
+ * Obtener las transiciones válidas desde el estado actual.
+ * @param state Estado actual.
+ * @param stringSymbol Símbolo actual de la cadena.
+ * @param stackSymbol Símbolo actual de la pila.
+ * @return Vector de transiciones válidas.
+ */
 std::vector<Transition> StackAutomaton::GetTransitions(State state, Symbol stringSymbol, Symbol stackSymbol) {
   std::vector<Transition> transitions;
   Symbol epsilon = Symbol('.');
@@ -318,21 +247,20 @@ std::vector<Transition> StackAutomaton::GetTransitions(State state, Symbol strin
   return transitions;
 }
 
-
-  
-
-
-
-
-
-
+/**
+ * Ejecuta la transición.
+ * @param state Estado actual.
+ * @param toState Estado de destino.
+ * @param remainingInput Cadena restante.
+ * @param stringSymbol Símbolo actual de la cadena.
+ * @param stackSymbol Símbolo actual de la pila.
+ * @param addToStack Símbolos a añadir a la pila.
+ * @param stack Pila actual.
+ */
 void StackAutomaton::Transites(State& state, State toState, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol,
 std::vector<Symbol> addToStack, MyStack& stack) {
   state = toState;
   if (stringSymbol.GetSymbol() != '.') {
-    std::cout << "Simbolo de cadena de la transición: " << stringSymbol.GetSymbol() << std::endl;
-    std::cout << "Eliminando símbolo de la cadena" << std::endl;
-    std::cout << "Cadena antes: " << remainingInput << std::endl;
     remainingInput.erase(0, 1);
   }
   if (stackSymbol.GetSymbol() != '.') {
@@ -340,24 +268,14 @@ std::vector<Symbol> addToStack, MyStack& stack) {
   }
   for (int i = addToStack.size() - 1; i >= 0; --i) {
     if (addToStack[i].GetSymbol() != '.') {
-      std::cout << "Añadiendo símbolo a la pila: " << addToStack[i].GetSymbol() << std::endl;
       stack.Push(addToStack[i].GetSymbol());
     }
   }
 }
 
-Iteration* StackAutomaton::FindFirstValidIteration() {
-  std::stack<Iteration> copy = iterations_;
-  while (!copy.empty()) {
-    Iteration iteration = copy.top();
-    copy.pop();
-    if (iteration.getRemainingTransitions().size() > 0) {
-      return &iteration;
-    }
-  }
-}
-
-// Destructor para liberar memoria de los estados
+/**
+ * Destructor para liberar memoria.
+ */
 StackAutomaton::~StackAutomaton() {
   for (auto state : states_) {
     delete state;  // Liberar memoria de cada estado

@@ -1,3 +1,15 @@
+/**
+  * Universidad de La Laguna
+  * Escuela Superior de Ingeniería y Tecnología
+  * Grado en Ingeniería Informática
+  * Complejidad Computacional P02
+  *
+  * @author Diego Rodríguez Martín
+  * @since 24-10-2024
+  * @brief Implementación de la clase State.
+  *
+*/
+
 #include <iostream>
 #include <vector>
 
@@ -15,23 +27,10 @@ class State {
   bool isAccepting() const { return isAccepting_; }
   std::vector<Transition> getTransitions() const { return transitions_; }
   void setIdentifier(std::string identifier) { identifier_ = identifier; }
-
-  bool operator==(const State &state) const {
-    return identifier_ == state.identifier_;
-  }
-
-  bool operator<(const State &state) const {
-    return identifier_ < state.identifier_;
-  }
-
-  bool operator>(const State &state) const {
-    return identifier_ > state.identifier_;
-  }
-
-  void AddTransition(Transition transition) {
-    std::cout << "Adding transition: " << transition << std::endl;
-    transitions_.push_back(transition);
-  }
+  bool operator==(const State &state) const { return identifier_ == state.identifier_; }
+  bool operator<(const State &state) const { return identifier_ < state.identifier_; }
+  bool operator>(const State &state) const { return identifier_ > state.identifier_; }
+  void AddTransition(Transition transition) { transitions_.push_back(transition); }
   
  private:
   std::string identifier_;
