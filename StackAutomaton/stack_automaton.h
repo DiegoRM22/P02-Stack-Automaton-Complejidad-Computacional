@@ -31,6 +31,11 @@ class StackAutomaton {
   void Transites(State& state, State toState, std::string& remainingInput, Symbol stringSymbol, Symbol stackSymbol, std::vector<Symbol> addToStack, MyStack& stack);  // Ejecuta la transición
   void InitializeStates();  // Inicializa los estados copiando el conjunto original
   void SetTraceMode(bool traceModeOn) { traceModeOn_ = traceModeOn; }  // Activa o desactiva el modo de seguimiento
+  bool CheckInitialState(State initialState);  // Comprueba si el estado inicial es válido
+  bool CheckInitialStackSymbol(Symbol initialStackSymbol);  // Comprueba si el símbolo inicial de la pila es válido
+  bool CheckTransition(Transition transition);  // Comprueba si la transición es válida
+  bool CheckState(State state);  // Comprueba si el estado es válido
+  bool CheckStackSymbol(Symbol stackSymbol);  // Comprueba si el símbolo de la pila es válido
   ~StackAutomaton();  // Destructor para liberar memoria
 
  private:

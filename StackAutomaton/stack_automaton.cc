@@ -74,11 +74,19 @@ StackAutomaton::StackAutomaton(std::string fileName) {
       case 4: {
         // Parsear el estado inicial
         initialState_ = new State(line);  // Crear puntero al estado inicial
+        if (!CheckInitialState(*initialState_)) {
+          std::cerr << "Error: el estado inicial no es válido." << std::endl;
+          exit(1);
+        }
         break;
       }
       case 5: {
         // Parsear el elemento de la pila inicial
         stack_.Push(line[0]);
+        if (!CheckInitialStackSymbol(Symbol(line[0]))) {
+          std::cerr << "Error: el símbolo inicial de la pila no es válido." << std::endl;
+          exit(1);
+        }
         break;
       }
       default: {
@@ -108,7 +116,10 @@ StackAutomaton::StackAutomaton(std::string fileName) {
           }
 
           Transition transition(fromStateName, toStateName, Symbol(stringSymbol), Symbol(stackSymbol), addToStack);
-          
+          if (!CheckTransition(transition)) {
+            std::cerr << "Error: la transición no es válida." << std::endl;
+            exit(1);
+          }
           // Usar punteros para buscar el estado y agregar la transición
           for (State* state : states_) {  // Usa punteros a State
             if (*state == State(fromStateName)) {  // Compara con un nuevo estado temporal
@@ -127,6 +138,7 @@ StackAutomaton::StackAutomaton(std::string fileName) {
       break;
     }
   }
+  
   InitializeStates();
 }
 
@@ -272,6 +284,59 @@ std::vector<Symbol> addToStack, MyStack& stack) {
     }
   }
 }
+
+bool StackAutomaton::CheckInitialState(State initialState) {
+  for (State* state : states_) {
+    if (state->getIdentifier() == initialState.getIdentifier()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StackAutomaton::CheckInitialStackSymbol(Symbol initialStackSymbol) {
+  for (Symbol symbol : stackAlphabet_.GetSymbols()) {
+    if (symbol == initialStackSymbol) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StackAutomaton::CheckState(State state) {
+  for (State* statePointer : states_) {
+    if (statePointer->getIdentifier() == state.getIdentifier()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StackAutomaton::CheckStackSymbol(Symbol stackSymbol) {
+  for (Symbol symbol : stackAlphabet_.GetSymbols()) {
+    if (symbol == stackSymbol) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StackAutomaton::CheckTransition(Transition transition) {
+  if (!CheckStackSymbol(transition.GetStackSymbol())) {
+    std::cout << "Error: " << transition.GetStackSymbol().GetSymbol() << " no es un símbolo de la pila válido." << std::endl;
+    return false;
+  }
+  if (!CheckState(State(transition.GetFromState()))) {
+    std::cout << "Error: " << transition.GetFromState() << " no es un estado current válido." << std::endl;
+    return false;
+  }
+  if (!CheckState(State(transition.GetToState()))) {
+    std::cout << "Error: " << transition.GetToState() << " no es un estado válido." << std::endl;
+    return false;
+  }
+  return true;
+}
+  
 
 /**
  * Destructor para liberar memoria.
