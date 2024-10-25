@@ -11,24 +11,35 @@
 */
 
 #include <iostream>
-
+#include <string>
 #include "StackAutomaton/stack_automaton.h"
 
 int main(int argc, char *argv[]) {
+  if (argc < 3) {
+    std::cerr << "Uso: " << argv[0] << " <archivo_automata> <cadena1> [<cadena2> ...] [--trace]" << std::endl;
+    return 1;
+  }
+
   std::string fileName = argv[1];
   StackAutomaton stackAutomaton(fileName);
-  std::string input = argv[2];
-  if (argc > 3) {
-    std::string mode = argv[3];
-    if (mode == "--trace") {
-      std::cout << "Modo de seguimiento activado." << std::endl;
-      stackAutomaton.SetTraceMode(true);
-    }
+  bool traceMode = false;
+
+  // Verifica si el último argumento es "--trace" y ajusta el modo de seguimiento
+  if (std::string(argv[argc - 1]) == "--trace") {
+    traceMode = true;
+    stackAutomaton.SetTraceMode(true);
+    argc--; // Reduce el conteo total de argumentos para ignorar "--trace" en las cadenas
   }
-  if (stackAutomaton.Accepts(input)) {
-    std::cout << "La cadena es aceptada." << std::endl;
-  } else {
-    std::cout << "La cadena no es aceptada." << std::endl;
+
+  // Itera sobre todas las cadenas proporcionadas como argumentos
+  for (int i = 2; i < argc; ++i) {
+    std::string input = argv[i];
+    std::cout << "Analizando la cadena: " << input << std::endl;
+    if (stackAutomaton.Accepts(input)) {
+      std::cout << "La cadena " << input << " es aceptada." << std::endl;
+    } else {
+      std::cout << "La cadena " << input << " no es aceptada." << std::endl;
+    }
   }
 
   return 0;
